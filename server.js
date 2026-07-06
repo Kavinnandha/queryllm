@@ -15,18 +15,21 @@ function extractCode(text) {
 
 app.get('/', async (req, res) => {
   const { query } = req.query;
+
   if (!query || typeof query !== 'string') {
-    return res.status(400).json({ error: 'query parameter (string) is required' });
+    return res.status(400).type('text/plain').send('query parameter (string) is required');
   }
 
   try {
     const prompt = `Write code for the following request. Return ONLY the code, no explanation, wrapped in a single markdown code block.\n\nRequest: ${query}`;
+
     const result = await model.generateContent(prompt);
     const text = result.response.text();
-    res.json({ code: extractCode(text) });
+
+    res.type('text/plain').send(extractCode(text));
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'failed to generate code' });
+    res.status(500).type('text/plain').send('failed to generate code');
   }
 });
 
